@@ -1,0 +1,13 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary and Output files
+Output/
+*.tmp
+~$*.xlsx
+
+# Local environment / IDE
+.vscode/
+.idea/

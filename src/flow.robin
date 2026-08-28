@@ -1,0 +1,34 @@
+Outlook.Launch Instance=> OutlookInstance
+IF (Folder.IfFolderExists.DoesNotExist Path: $'''C:\\PAD_Test''') THEN
+    Folder.Create FolderPath: $'''C:\\''' FolderName: $'''PAD_Test''' Folder=> NewFolder_Parent
+END
+Folder.GetSubfolders Folder: $'''C:\\PAD_Test''' FolderFilter: $'''*''' IncludeSubfolders: False FailOnAccessDenied: True SortBy1: Folder.SortBy.NoSort SortDescending1: False SortBy2: Folder.SortBy.NoSort SortDescending2: False SortBy3: Folder.SortBy.NoSort SortDescending3: False Subfolders=> CompanyFolders
+LOOP FOREACH CurrentCompany IN CompanyFolders
+    IF (File.IfFile.Exists File: $'''%CurrentCompany%\\employee_map.xlsx''') THEN
+        IF (Folder.IfFolderExists.DoesNotExist Path: $'''%CurrentCompany%\\Output''') THEN
+            Folder.Create FolderPath: CurrentCompany FolderName: $'''Output''' Folder=> NewFolder
+        END
+        Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: $'''%CurrentCompany%\\employee_map.xlsx''' Visible: False ReadOnly: True UseMachineLocale: False Instance=> ExcelInstance
+        Excel.ReadFromExcel.ReadAllCells Instance: ExcelInstance GetCellContentsMode: Excel.GetCellContentsMode.TypedValues FirstLineIsHeader: True RangeValue=> ExcelData
+        Excel.CloseExcel.Close Instance: ExcelInstance
+        Folder.GetFiles Folder: CurrentCompany FileFilter: $'''*.pdf''' IncludeSubfolders: False FailOnAccessDenied: True SortBy1: Folder.SortBy.NoSort SortDescending1: False SortBy2: Folder.SortBy.NoSort SortDescending2: False SortBy3: Folder.SortBy.NoSort SortDescending3: False Files=> PdfFiles
+        LOOP FOREACH CurrentPdf IN PdfFiles
+            LOOP LoopIndex FROM 1 TO 99 STEP 1
+                Pdf.ExtractPages PDFFile: CurrentPdf PageSelection: LoopIndex ExtractedPDFPath: $'''%CurrentCompany%\\Output\\page_%LoopIndex%.pdf''' IfFileExists: Pdf.IfFileExists.Overwrite ExtractedPDFFile=> ExtractedPDF
+                ON ERROR
+                    GOTO NextPdf
+                END
+                Pdf.ExtractTextFromPDF.ExtractText PDFFile: $'''%CurrentCompany%\\Output\\page_%LoopIndex%.pdf''' DetectLayout: False ExtractedText=> ExtractedText
+                Text.ParseText.RegexParseForFirstOccurrence Text: ExtractedText TextToFind: $'''E\\d{5}''' StartingPosition: 0 IgnoreCase: False Match=> Matches
+                File.RenameFiles.Rename Files: $'''%CurrentCompany%\\Output\\page_%LoopIndex%.pdf''' NewName: $'''%CurrentPdf.NameWithoutExtension%_%Matches%''' KeepExtension: True IfFileExists: File.IfExists.Overwrite
+                Variables.FilterDataTable DataTable: ExcelData FilterParameters: { ^['RULE', 'COLUMN', 'OPERATOR', 'VALUE'], [$'''''', $'''EmpId''', $'''Equal''', Matches] } MatchCase: True FilteredDataTable=> FilteredDataTable
+                IF FilteredDataTable.RowsCount > 0 THEN
+                    SET EmployeeEmail TO FilteredDataTable[0]['Email']
+                    Outlook.SendEmailThroughOutlook.SendEmail Instance: OutlookInstance Account: $'''demo-dispatcher@example.com''' SendTo: EmployeeEmail Subject: $'''付款通知單 - %CurrentPdf.NameWithoutExtension% - %Matches%''' Body: $'''您好，附件為本期付款通知單，敬請查收。謝謝！''' IsBodyHtml: False IsDraft: False Attachments: $'''%CurrentCompany%\\Output\\%CurrentPdf.NameWithoutExtension%_%Matches%.pdf'''
+                END
+            END
+            LABEL NextPdf
+        END
+    END
+END
+Outlook.Close Instance: OutlookInstance
