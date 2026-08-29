@@ -30,12 +30,25 @@
 ## ⚙️ 核心運作流程
 
 ```mermaid
-graph LR
-    A["掃描各子公司目錄"] --> B["載入通訊錄 Excel"]
-    B --> C["逐頁拆分批次 PDF"]
-    C --> D["RegEx 提取工號 (E\d{5})"]
-    D --> E["匹配 Email"]
-    E --> F["Outlook 發送附件"]
+flowchart TD
+    subgraph Trigger["1. 觸發與輸入 (Trigger & Input)"]
+        T1["排程 / 人工啟動 RPA"] --> T2["動態掃描目錄<br/>C:\\PAD_Test\\"]
+        T2 --> T3["載入子公司通訊錄<br/>employee_map.xlsx"]
+        T2 --> T4["取得待處理付款清冊<br/>payment_batch_*.pdf"]
+    end
+
+    subgraph CoreEngine["2. 核心處理引擎 (PAD / Robin Engine)"]
+        T3 & T4 --> P1["逐頁拆分 PDF (Extract Pages)"]
+        P1 --> P2["RegEx 工號辨識<br/>E\\d{5}"]
+        P2 --> P3["記憶體資料比對<br/>(DataTable Filter by EmpId)"]
+        P1 -.->|超出頁數 / EOF| ERR["ON ERROR 容錯機制<br/>自動跳至下一份 PDF"]
+    end
+
+    subgraph Output["3. 產出與交付 (Output & Delivery)"]
+        P3 --> O1["自動重命名個人 PDF<br/>&lt;DocName&gt;_&lt;EmpID&gt;.pdf"]
+        P3 --> O2["M365 Outlook 精準發送<br/>(附加個人 PDF 付款通知)"]
+        ERR --> O3["完成批次作業 / 日誌紀錄"]
+    end
 ```
 
 * **多子公司動態掃描**：自動偵測 `C:\PAD_Test\` 下的各公司資料夾，新子公司只需建立資料夾與通訊錄即可自動納入排程。

@@ -30,12 +30,25 @@ This workflow fully automates the process across group subsidiaries, cutting pro
 ## ⚙️ Workflow Logic
 
 ```mermaid
-graph LR
-    A["Scan Subsidiary Folders"] --> B["Load employee_map.xlsx"]
-    B --> C["Split Batch PDF Page-by-Page"]
-    C --> D["RegEx Extract EmpID (E\d{5})"]
-    D --> E["Match Recipient Email"]
-    E --> F["Outlook Dispatches Attachment"]
+flowchart TD
+    subgraph Trigger["1. Trigger & Input"]
+        T1["Scheduled / Manual RPA Trigger"] --> T2["Dynamic Directory Scan<br/>C:\\PAD_Test\\"]
+        T2 --> T3["Load Employee Directory<br/>employee_map.xlsx"]
+        T2 --> T4["Fetch Batch Payment Reports<br/>payment_batch_*.pdf"]
+    end
+
+    subgraph CoreEngine["2. Core Processing Engine (PAD / Robin)"]
+        T3 & T4 --> P1["Split PDF Page-by-Page<br/>(Extract Pages)"]
+        P1 --> P2["RegEx Employee ID Extraction<br/>E\\d{5}"]
+        P2 --> P3["In-Memory Data Matching<br/>(DataTable Filter by EmpId)"]
+        P1 -.->|Out of bounds / EOF| ERR["ON ERROR Handling<br/>Auto-skip to Next PDF"]
+    end
+
+    subgraph Output["3. Output & Delivery"]
+        P3 --> O1["Auto-Rename Individual PDF<br/>&lt;DocName&gt;_&lt;EmpID&gt;.pdf"]
+        P3 --> O2["M365 Outlook Targeted Dispatch<br/>(Attach Personalized Advice)"]
+        ERR --> O3["Batch Completion / Execution Log"]
+    end
 ```
 
 * **Multi-Company Dynamic Scanning**: Discovers company subdirectories under `C:\PAD_Test\`. New entities are onboarded simply by adding their folder and Excel mapping file.
