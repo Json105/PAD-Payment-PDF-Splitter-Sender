@@ -2,16 +2,16 @@
 
 # PAD Payment PDF Splitter & Sender
 
+🌐 **[繁體中文 (Traditional Chinese)](README.md)** | **[English](README_EN.md)**
+
+<br/>
+
 [![Power Automate Desktop](https://img.shields.io/badge/Power%20Automate-Desktop-0066FF?style=flat-square&logo=microsoftpowerautomate&logoColor=white)](https://powerautomate.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?style=flat-square&logo=windows&logoColor=white)](#)
 [![M365 Outlook](https://img.shields.io/badge/M365-Outlook-0078D4?style=flat-square&logo=microsoftoutlook&logoColor=white)](https://www.microsoft.com/microsoft-365)
 [![Microsoft Excel](https://img.shields.io/badge/Microsoft-Excel-217346?style=flat-square&logo=microsoftexcel&logoColor=white)](https://www.microsoft.com/microsoft-365/excel)
 [![Workflow](https://img.shields.io/badge/Workflow-Enterprise%20RPA-success?style=flat-square)](#)
 [![Data Privacy](https://img.shields.io/badge/Data%20Privacy-Sanitized-green?style=flat-square)](#-備註)
-
-<br/>
-
-🌐 **[繁體中文 (Traditional Chinese)](README.md)** | **[English](README_EN.md)**
 
 </div>
 
