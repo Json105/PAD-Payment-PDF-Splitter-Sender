@@ -1,3 +1,5 @@
+<div align="center">
+
 # PAD Payment PDF Splitter & Sender
 
 [![Power Automate Desktop](https://img.shields.io/badge/Power%20Automate-Desktop-0066FF?style=flat-square&logo=microsoftpowerautomate&logoColor=white)](https://powerautomate.microsoft.com/)
@@ -7,7 +9,11 @@
 [![Workflow](https://img.shields.io/badge/Workflow-Enterprise%20RPA-success?style=flat-square)](#)
 [![Data Privacy](https://img.shields.io/badge/Data%20Privacy-Sanitized-green?style=flat-square)](#-note)
 
-[繁體中文](README.md) | [English](README_EN.md)
+<br/>
+
+🌐 **[繁體中文 (Traditional Chinese)](README.md)** | **[English](README_EN.md)**
+
+</div>
 
 An RPA workflow developed with **Power Automate Desktop (PAD)** and **Microsoft 365 Outlook**. Currently applied in production across enterprise group subsidiaries to automate the splitting of consolidated batch payment PDF reports and dispatch personalized payment advice to employees.
 
